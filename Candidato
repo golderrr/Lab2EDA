@@ -1,0 +1,46 @@
+import java.util.*;
+
+public class Candidato {
+    private int id;
+    private String nombre;
+    private String partido;
+    private Queue<Voto> votos = new LinkedList<Voto>();
+
+    public Candidato(int id, String nombre, String partido, Queue<Voto> votos) {
+        this.id = id;
+        this.nombre = nombre;
+        this.partido = partido;
+        this.votos = new LinkedList<>();
+    }
+
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public String getNombre() {
+        return nombre;
+    }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+    public String getPartido() {
+        return partido;
+    }
+    public void setPartido(String partido) {
+        this.partido = partido;
+    }
+    public Queue<Voto> getVotos() {
+        return votos;
+    }
+    public void setVotos(Queue<Voto> votos) {
+        this.votos = votos;
+    }
+    public void agregarVoto(Voto voto) {
+        votos.add(voto);
+    }
+    public void eliminarVoto(Voto voto) {
+        votos.remove(voto);
+    }
+}

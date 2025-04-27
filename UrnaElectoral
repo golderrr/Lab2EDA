@@ -1,0 +1,102 @@
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.io.*;
+
+class UrnaElectoral{
+    private List<Candidato> listaCandidatos = new LinkedList<>();
+    private Stack<Voto> historialVotos = new Stack<>();
+    private Queue<Voto> votosReportados = new LinkedList<>();
+    private int idCounter;
+
+    public UrnaElectoral() {
+        idCounter = 1;
+    }
+
+    public void agregarCandidato(Candidato c) {
+        listaCandidatos.add(c);
+    }
+
+    public boolean verificarVotante(Votante votante){
+        if(votante.isYaVoto()){
+            return true;
+        }
+        ArrayList<Voto> lista = new ArrayList<>(historialVotos);
+        for(int i=0; i<lista.size(); i++){
+            if(votante.getId() == lista.get(i).getVotanteId()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean registrarVoto(Votante votante, int candidatoID){
+        Candidato candidato = null;
+        for(int i=0; i<listaCandidatos.size(); i++){
+            if(listaCandidatos.get(i).getId() == candidatoID){
+                candidato = listaCandidatos.get(i);
+                break;
+            }
+        }
+
+        if(candidato == null){
+            System.out.println("No se encontro el candidato");
+            return false;
+        }
+
+        LocalTime hora = LocalTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        String timeStamp = hora.format(formatter);
+        Voto voto = new Voto(idCounter++, votante.getId(), candidatoID, timeStamp);
+
+        if(verificarVotante(votante)){
+            System.out.println("Voto invalido.");
+            candidato.agregarVoto(voto);
+            reportarVoto(candidato, voto.getId());
+            return false;
+        }
+
+        candidato.agregarVoto(voto);
+        historialVotos.push(voto);
+        votante.setYaVoto(true);
+        System.out.println("Voto agregado.");
+        return true;
+
+    }
+    public boolean reportarVoto(Candidato candidato, int idVoto){
+        Queue<Voto> votos = candidato.getVotos();
+        List<Voto> votos2 = new ArrayList<>(votos);
+        Voto reportado = null;
+
+        for(int i=0; i<votos2.size(); i++){
+            if(votos2.get(i).getId() == idVoto){
+                reportado = votos2.get(i);
+                break;
+            }
+        }
+
+        if(reportado == null){
+            System.out.println("No se ha encontrado el voto.");
+            return false;
+        }
+        else if(reportado != null){
+            candidato.eliminarVoto(reportado);
+            votosReportados.add(reportado);
+            System.out.println("Voto reportado registrado.");
+        }
+        return true;
+    }
+    public Map<String, Integer> obtenerResultados(){
+        Map<String, Integer> resultados = new HashMap<>();
+        Candidato candidato = null;
+
+        for(int i=0; i<listaCandidatos.size(); i++) {
+            int conteo = 0;
+            String nombreCandidato = listaCandidatos.get(i).getNombre();
+            candidato = listaCandidatos.get(i);
+            conteo = listaCandidatos.get(i).getVotos().size();
+            resultados.put(nombreCandidato, conteo);
+        }
+        return resultados;
+    }
+}
